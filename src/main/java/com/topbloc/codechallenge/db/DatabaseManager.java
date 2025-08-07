@@ -138,15 +138,94 @@ public class DatabaseManager {
         return obj;
     }
 
-    // Controller functions - add your routes here. getItems is provided as an example
-    public static JSONArray getItems() {
-        String sql = "SELECT * FROM items";
-        try {
-            ResultSet set = conn.createStatement().executeQuery(sql);
-            return convertResultSetToJson(set);
+    // Adam: Didn't wanna have to rip this try/catch for EVERY function interacting with DB.
+    // Adam: Not to mention, validate params for potential SQL injection (enhancement from original)
+    private static JSONArray queryResults(String query, Object... params) {
+        // Prepare the statement in try (this automatically runs ps.close() at end
+        try (var ps = conn.prepareStatement(query)) {
+            // Basically go thru each ? in query and assign it value of param (in order)
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+
+            // Then run the query, and return the results
+            try (var rs = ps.executeQuery()) {
+                return convertResultSetToJson(rs);
+            }
         } catch (SQLException e) {
+            // If an error ever happens in that process, log the error and return nothing
             System.out.println(e.getMessage());
             return null;
         }
+    }
+
+    /*
+     ** Controller functions - add your routes here. getItems is provided as an example
+     */
+
+    // getItems: Return solely item fields
+    public static JSONArray getItems() {
+        String sql = "SELECT * FROM items";
+        return queryResults(sql);
+    }
+
+    // getAllInventory: Return items + inventory fields (JOIN)
+    public static JSONArray getAllInventory() {
+        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+                "FROM items i JOIN inventory inv ON inv.item = i.id " +
+                "ORDER BY i.id";
+        return queryResults(sql);
+    }
+
+    // getOverstockedInventory: Return items + inventory where stock > capacity
+    public static JSONArray getOverstockedInventory() {
+        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+                "FROM items i JOIN inventory inv ON inv.item = i.id " +
+                "WHERE inv.stock > inv.capacity " +
+                "ORDER BY i.id";
+        return queryResults(sql);
+    }
+
+    // getLowStockInventory: Return items + inventory where stock < capacity*0.35
+    public static JSONArray getLowStockInventory() {
+        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+                "FROM items i JOIN inventory inv ON inv.item = i.id " +
+                "WHERE inv.stock < (inv.capacity * 0.35) " +
+                "ORDER BY i.id";
+        return queryResults(sql);
+    }
+
+    // getInventory: Return items + inventory for given Item ID
+    public static JSONArray getInventory(Integer id) {
+        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+                "FROM items i JOIN inventory inv ON inv.item = i.id " +
+                "WHERE i.id = ?";
+        return queryResults(sql, id);
+    }
+
+    // getAllDistributors: Return all distributors
+    public static JSONArray getAllDistributors() {
+        String sql = "SELECT * FROM distributors;";
+        return queryResults(sql);
+    }
+
+    // getDistributor: Return distributor for given ID
+    public static JSONArray getDistributor(Integer id) {
+        String sql = "SELECT i.name, i.id, dp.cost " +
+                "FROM distributors d " +
+                "JOIN distributor_prices dp ON d.id = dp.distributor " +
+                "JOIN items i ON i.id = dp.item " +
+                "WHERE d.id = ?;";
+        return queryResults(sql, id);
+    }
+
+    // getDistributorByItem: Return distributor for a given ITEM id
+    public static JSONArray getDistributorsByItem(Integer id) {
+        String sql = "SELECT d.name, d.id, dp.cost " +
+                "FROM distributor_prices dp " +
+                "JOIN items i ON dp.item = i.id " +
+                "JOIN distributors d ON d.id = dp.distributor " +
+                "WHERE dp.item = ?";
+        return queryResults(sql, id);
     }
 }

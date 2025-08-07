@@ -53,7 +53,7 @@ public class Main {
         });
     }
 
-    // Adam: grab the
+    // Adam: This helps maintain OSOT with ensuring param IDs are ACTUALLY IDs
     private static int validateInt(String param) {
         // Basically, here we wanna validate that the itemID param is ACTUALLY an integer (prevent SQL injection)
         if (!param.matches("\\d+")) {
@@ -62,6 +62,7 @@ public class Main {
         return Integer.parseInt(param);
     }
 
+    // Adam: OSOT for returning array or 404 if DNE
     private static Object jsonOr404(JSONArray data, Response res) {
         if (data.isEmpty()) {
             res.status(404);

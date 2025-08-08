@@ -5,6 +5,9 @@ import com.topbloc.codechallenge.db.DatabaseManager;
 import static spark.Spark.*;
 import spark.Response;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class Main {
     public static void main(String[] args) {
@@ -22,6 +25,9 @@ public class Main {
             DatabaseManager.resetDatabase();
             return "OK";
         });
+
+        // Adam: Default all responses to JSON
+        before((req, res) -> res.type("application/json"));
 
         //TODO: Add your routes here. a couple of examples are below
         get("/items", (req, res) -> DatabaseManager.getItems());
@@ -50,6 +56,68 @@ public class Main {
             var itemID = validateInt(req.params(":itemID")); // Validate int, or return 400
             var data = DatabaseManager.getDistributorsByItem(itemID); // Grab the item...
             return jsonOr404(data, res); // ...and return it or if DNE, 404
+        });
+
+        // Adam: POST routes
+        post("/items", (req, res) -> {
+            try {
+                // Parse the body of the request - we need the name param
+                JSONObject body = (JSONObject) new JSONParser().parse(req.body());
+                String name = body.get("name").toString();
+
+                // Create the item (it returns ID)
+                int newId = DatabaseManager.postItem(name); // Insert & return new ID
+
+                // If the ID returned is -1, then an error occured.
+                if (newId == -1) {
+                    halt(500, "Error creating object, request failed.");
+                    return null;
+                }
+
+                // Prep the JSON response
+                var data = "{\"id\":" + newId + ",\"name\":\"" + name + "\"}";
+                res.status(201); // 201 for created
+
+                // Return the data
+                return data;
+            } catch (ParseException e) {
+                // If the user didn't input a string for name, or the body didn't have the name attr, return error
+                halt(400, "Invalid JSON format");
+                return null;
+            }
+        });
+        post("/inventory", (req, res) -> {
+            try {
+                // Parse the body of the request - we need the item (ID), stock, capacity
+                JSONObject body = (JSONObject) new JSONParser().parse(req.body());
+                Integer item = ((Long) body.get("item")).intValue();
+                Integer stock = ((Long) body.get("stock")).intValue();
+                Integer capacity = ((Long) body.get("capacity")).intValue();
+
+                // Create the item (it returns ID)
+                int newId = DatabaseManager.postInventory(item, stock, capacity); // Insert & return new ID
+
+                // If the ID returned is -1, then an error occured.
+                if (newId == -1) {
+                    halt(500, "Error creating object, request failed.");
+                    return null;
+                }
+
+                // Prep the JSON response
+                var data = "{\"id\":" + newId +
+                        ",\"item\":" + item +
+                        ",\"stock\":" + stock +
+                        ",\"capacity\":" + capacity +
+                        "}";
+                res.status(201); // 201 for created
+
+                // Return the data
+                return data;
+            } catch (ParseException e) {
+                // If the user didn't input a string for name, or the body didn't have the name attr, return error
+                halt(400, "Invalid JSON format");
+                return null;
+            }
         });
     }
 

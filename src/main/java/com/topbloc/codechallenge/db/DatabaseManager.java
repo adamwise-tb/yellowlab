@@ -4,6 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -261,5 +262,17 @@ public class DatabaseManager {
     public static int postInventory(Integer item, Integer stock, Integer capacity) {
         String sql = "INSERT INTO inventory (item, stock, capacity) VALUES (?, ?, ?)";
         return createObject(sql, item, stock, capacity);
+    }
+
+    // postDistributor: Create distributor (only name)
+    public static int postDistributor(String name) {
+        String sql = "INSERT INTO distributors (name) VALUES (?)";
+        return createObject(sql, name);
+    }
+
+    // postDistributorPrice: Create distributor_price associated with both distributor (ID) & item (ID)
+    public static int postDistributorPrice(Integer distributor, Integer item, BigDecimal cost) {
+        String sql = "INSERT INTO distributor_prices (distributor, item, cost) VALUES (?, ?, ?)";
+        return createObject(sql, distributor, item, cost);
     }
 }

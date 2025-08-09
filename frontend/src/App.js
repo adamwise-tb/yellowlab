@@ -1,4 +1,4 @@
-import { useState } from "react"; // We use this to store the "state" of the app, dependent on what buttons are clicked
+import { useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css'; // Leveraging bootstrap to make the app look nice easilyimport { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 

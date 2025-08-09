@@ -182,6 +182,22 @@ public class DatabaseManager {
         }
     }
 
+    // Adam: PUT/update rows in given tables
+    private static int updateObject(String query, Object... params) {
+        try (var ps = conn.prepareStatement(query)) {
+            // Basically go thru each ? in query and assign it value of param (in order)
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+
+            // Execute the update - its return value is the number of rows affected (1 = successful, 0 = failed)
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return -1; // Return -1 if failure within SQL query
+        }
+    }
+
     /*
      ** Controller functions - add your routes here. getItems is provided as an example
      */
@@ -274,5 +290,11 @@ public class DatabaseManager {
     public static int postDistributorPrice(Integer distributor, Integer item, BigDecimal cost) {
         String sql = "INSERT INTO distributor_prices (distributor, item, cost) VALUES (?, ?, ?)";
         return createObject(sql, distributor, item, cost);
+    }
+
+    // updateItem: Update item name
+    public static int updateItem(Integer id, String name) {
+        String sql = "UPDATE items SET name = ? WHERE id = ?";
+        return updateObject(sql, name, id);
     }
 }

@@ -69,7 +69,7 @@ public class Main {
 
                 // Create the item (it returns ID)
                 int newId = DatabaseManager.postItem(name); // Insert & return new ID
-                validateCreate(newId); // Validate it was actually created, if not, return 500
+                validateQueryExecution(newId); // Validate it was actually created, if not, return 500
 
                 // Prep the JSON response
                 var data = "{\"id\":" + newId + ",\"name\":\"" + name + "\"}";
@@ -93,7 +93,7 @@ public class Main {
 
                 // Create the item (it returns ID)
                 int newId = DatabaseManager.postInventory(item, stock, capacity); // Insert & return new ID
-                validateCreate(newId); // Validate it was actually created, if not, return 500
+                validateQueryExecution(newId); // Validate it was actually created, if not, return 500
 
                 // Prep the JSON response
                 var data = "{\"id\":" + newId +
@@ -119,7 +119,7 @@ public class Main {
 
                 // Create the item (it returns ID)
                 int newId = DatabaseManager.postDistributor(name); // Insert & return new ID
-                validateCreate(newId); // Validate it was actually created, if not, return 500
+                validateQueryExecution(newId); // Validate it was actually created, if not, return 500
 
                 // Prep the JSON response
                 var data = "{\"id\":" + newId + ",\"name\":\"" + name + "\"}";
@@ -146,7 +146,7 @@ public class Main {
 
                 // Create the item (it returns ID)
                 int newId = DatabaseManager.postDistributorPrice(distributor, item, cost); // Insert & return new ID
-                validateCreate(newId); // Validate it was actually created, if not, return 500
+                validateQueryExecution(newId); // Validate it was actually created, if not, return 500
 
                 // Prep the JSON response
                 var data = "{\"id\":" + newId +
@@ -158,6 +158,30 @@ public class Main {
 
                 // Return the data
                 return data;
+            } catch (ParseException e) {
+                // If the user didn't input a string for name, or the body didn't have the name attr, return error
+                halt(400, "Invalid JSON format");
+                return null;
+            }
+        });
+
+        // Adam: PUT routes
+        put ("/items/:itemID", (req, res) -> {
+            try {
+                var itemID = validateInt(req.params(":itemID")); // Validate int, or return 400
+
+                // Parse the body of the request - we need the name param
+                JSONObject body = (JSONObject) new JSONParser().parse(req.body());
+                String name = body.get("name").toString();
+
+                // Create the item (it returns ID)
+                int rowsUpdated = DatabaseManager.updateItem(itemID, name); // Insert & return new ID
+                validateQueryExecution(rowsUpdated); // If an error happened in SQL, this'll be -1
+                validateRowsUpdated(rowsUpdated, itemID); // Validate item was actually updated, if not, return 404 (DNE)
+
+                // Return updated object
+                res.status(200); // 200 for updated, we're returning the new obj
+                return "{\"id\":" + itemID + ",\"name\":\"" + name + "\"}";
             } catch (ParseException e) {
                 // If the user didn't input a string for name, or the body didn't have the name attr, return error
                 halt(400, "Invalid JSON format");
@@ -185,11 +209,18 @@ public class Main {
         }
     }
 
-    // Adam: OSOT in validating obj actually created/updated
-    private static void validateCreate(Integer id) {
+    // Adam: OSOT in validating obj actually created (POST)
+    private static void validateQueryExecution(Integer id) {
         // If the ID returned is -1, then an error occured.
         if (id == -1) {
             halt(500, "Error creating object, request failed.");
+        }
+    }
+
+    // Adam: OSOT in validating obj was actually updated (PUT)
+    private static void validateRowsUpdated(Integer numberOfRowsUpdated, Integer id) {
+        if (numberOfRowsUpdated == 0) {
+            halt(404, "Could not find object with ID " + id);
         }
     }
 }

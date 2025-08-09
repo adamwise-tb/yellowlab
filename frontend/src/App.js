@@ -1,12 +1,19 @@
 import { useState } from "react"; // We use this to store the "state" of the app, dependent on what buttons are clicked
-import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Leveraging bootstrap to make the app look nice easilyimport { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+
+// Add for routing through links
+import Item from "./pages/Item";
+import Distributor from "./pages/Distributor";
 
 export default function App() {
     const [rows, setRows] = useState([]); // initialize state values to empty arrays
     const [loading, setLoading] = useState(false); // initialize state values to false
+    const [active, setActive] = useState(null); // initialize button state
 
     // We'll use this function to ping the API we built with Java
     const apiRequest = async (path) => {
+        setActive(path); // make the button blue
         setLoading(true); // This way we can create a spinning bar or something
 
         try {
@@ -23,48 +30,52 @@ export default function App() {
     const cols = rows[0] ? Object.keys(rows[0]) : [] // if the first row exist, grab the keys as columns
 
     return (
-        <div class='container'>
-            <h1>Adam Backend Code Challenge</h1>
+      <Router>
+        <div className="container py-4">
+          <h1 className="mb-4">Adam's Backend Code Challenge</h1>
+          <div className="mb-3">
+            <button
+              className={`btn me-2 ${active === "items" ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => apiRequest("items")}
+            >
+              Items
+            </button>
+            <button
+              className={`btn ${active === "distributors" ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => apiRequest("distributors")}
+            >
+              Distributors
+            </button>
+          </div>
+          {loading && <div className="alert alert-info">Loading…</div>}
+          {!loading && rows.length > 0 && (
+            <table className="table table-striped">
+              <thead>
+                <tr>{cols.map(c => <th key={c}>{c}</th>)}</tr>
+              </thead>
+              <tbody>
+                {rows.map((row, i) => (
+                    <tr key={i}>
+                      {cols.map((c) => (
+                        <td key={c}>
+                          {c === "name" ? (
+                            <Link to={`/${active}/${row.id}`}>{row[c]}</Link>
+                          ) : (
+                            row[c]
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          )}
 
-            <div>
-                <button onClick={() => apiRequest("items")}>Items</button>
-                <button onClick={() => apiRequest("distributors")}>Distributors</button>
-            </div>
-
-            {
-                /* If loading is true, then display Loading... */
-                loading && <p>Loading...</p>
-            }
-
-            {
-               /* If we're no longer loading and we have rows present, display them in a table */
-               !loading && rows.length > 0 && (
-                    <div class='grid'>
-                       <table>
-                           <thead>
-                               <tr>
-                                   {
-                                   /* Go through each column, and output its value */
-                                   cols.map(c => (
-                                       <th>{c}</th>
-                                   ))}
-                               </tr>
-                           </thead>
-                           <tbody>
-                                {
-                                /* Go through each row, and output its value corresponding to the column */
-                                rows.map((row,i)=> (
-                                    <tr>
-                                        {cols.map(c => (
-                                            <td>{String(row[c])}</td>
-                                        ))}
-                                    </tr>
-                                ))}
-                           </tbody>
-                       </table>
-                    </div>
-               )
-            }
+          <Routes>
+            <Route path="/items/:id" element={<Item />} />
+            <Route path="/distributors/:id" element={<Distributor />} />
+          </Routes>
         </div>
+      </Router>
     )
 }

@@ -257,6 +257,16 @@ public class Main {
                 return null;
             }
         });
+
+        // Adam: DELETE endpoints
+        delete("/items/:itemID", (req, res) -> {
+            int itemID = validateInt(req.params(":itemID")); // Validate int, or return 400
+            int rowsDeleted = DatabaseManager.deleteItem(itemID); // Delete the item (and cascade to inventory)
+            validateQueryExecution(rowsDeleted); // ensure rowsDeleted doesn't equal -1
+            validateRowsUpdated(rowsDeleted);
+            res.status(204); // If we got to this point, it was successful
+            return "";
+        });
     }
 
     // Adam: This helps maintain OSOT with ensuring param IDs are ACTUALLY IDs

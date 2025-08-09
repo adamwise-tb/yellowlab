@@ -313,4 +313,10 @@ public class DatabaseManager {
                 "LIMIT 1;";
         return queryResults(sql, itemID);
     }
+
+    // deleteItem: Given item ID, delete it, cascade to inventory items as well
+    public static int deleteItem(Integer itemID) {
+        String sql = "DELETE FROM items WHERE id = ?";
+        return updateObject(sql, itemID);
+    }
 }

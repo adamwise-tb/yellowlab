@@ -303,4 +303,14 @@ public class DatabaseManager {
         String sql = "UPDATE distributor_prices SET cost = ? WHERE distributor = ? AND item = ?";
         return updateObject(sql, cost.doubleValue(), distributorID, itemID);
     }
+
+    // getCheapestCost: Given an item ID, sort by distributor_prices ascending by cost, LIMIT 1 to return cheapest cost
+    public static JSONArray getCheapestCost(Integer itemID) {
+        String sql = "SELECT distributor, cost " +
+                "FROM distributor_prices " +
+                "WHERE item = ? " +
+                "ORDER BY cost ASC " +
+                "LIMIT 1;";
+        return queryResults(sql, itemID);
+    }
 }

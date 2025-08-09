@@ -213,6 +213,50 @@ public class Main {
                 return null;
             }
         });
+
+        // Adam: Unique POST request - we're not creating an obj here, but need POST for the request body
+        post("/restock", (req, res) -> {
+            try {
+                // Parse the body of the request - we need the item (ID) and the quantity needed
+                JSONObject body = (JSONObject) new JSONParser().parse(req.body());
+                Integer item = ((Number) body.get("item")).intValue();
+                Integer quantity = ((Number) body.get("quantity")).intValue();
+
+                // We need to grab the cheapest cost from all distributor(_prices)
+                JSONArray rows = DatabaseManager.getCheapestCost(item);
+                // Double check the item did in fact exist
+                if (rows.isEmpty()) {
+                    halt(404, "Item does not exist, no pricing available.");
+                }
+
+                // Grab the object (it's the first one, index of 0, basically an array with 1 object)
+                JSONObject object = (JSONObject) rows.get(0);
+
+                // Extract the cost from object
+                BigDecimal minCost = BigDecimal
+                        .valueOf(((Number) object.get("cost")).doubleValue())
+                        .setScale(2, RoundingMode.HALF_UP);
+
+                // Multiply minCost by quantity
+                BigDecimal totalCost = minCost.multiply(BigDecimal.valueOf(quantity)); // Need to "BigDecimal" quantity to set both to the same type of "number" for multiplication
+
+                // Prep the JSON response
+                var data = "{\"minCost\":" + minCost +
+                        ",\"distributor\":" + object.get("distributor") +
+                        ",\"item\":" + item +
+                        ",\"quantity\":" + quantity +
+                        ",\"totalCost\":" + totalCost +
+                        "}";
+                res.status(200); // 200 remember we're not creating anything
+
+                // Return the data
+                return data;
+            } catch (ParseException e) {
+                // If the user didn't input a string for name, or the body didn't have the name attr, return error
+                halt(400, "Invalid JSON format");
+                return null;
+            }
+        });
     }
 
     // Adam: This helps maintain OSOT with ensuring param IDs are ACTUALLY IDs

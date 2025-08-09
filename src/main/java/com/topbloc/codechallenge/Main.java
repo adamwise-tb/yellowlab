@@ -10,6 +10,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
@@ -274,6 +275,24 @@ public class Main {
             validateRowsUpdated(rowsDeleted);
             res.status(204); // If we got to this point, it was successful
             return "";
+        });
+
+        // Adam: CSV download of tables
+        get("/export", (req, res) -> {
+            var table = req.queryParams("table"); // Grab the table from URL query params (ex: ?table=items)
+
+            // Validate table input
+            if (table == null) halt(400, "Missing ?table="); // Require the URL param to be present
+            if (!Set.of("items","inventory","distributors","distributor_prices").contains(table)) halt(400, "bad table"); // You've gotta list a table within the DB
+
+            // Grab the csv export
+            String csv = DatabaseManager.exportTableCSV(table);
+
+            // Prepare the response
+            res.type("text/csv"); // Instead of application/json, return a CSV
+            res.header("Content-Disposition", "attachment; filename=\"" + table + ".csv\""); // Upon load, download table.csv
+
+            return csv; // output the data
         });
     }
 

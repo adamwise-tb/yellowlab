@@ -198,6 +198,55 @@ public class DatabaseManager {
         }
     }
 
+    // Adam: output a table in CSV
+    private static String generateCSV(String query) {
+        try (var ps = conn.prepareStatement(query)) {
+            var rs = ps.executeQuery(); // execute the query, we'll ref the data to build the CSV
+
+            // Initialize string to hold CSV
+            var csvString = new StringBuilder();
+
+            // Get the columns from the SQL query
+            var md = rs.getMetaData();
+            var cols = md.getColumnCount();
+
+            // Create the header
+            for (int i = 1; i <= cols; i++) {
+                if (i > 1) csvString.append(','); // If it's not the first item, throw a comma before
+                csvString.append(csvEscape(md.getColumnLabel(i))); // Grab the column label, establish as header
+            }
+            csvString.append('\n'); // line break for new row
+
+            // Create the rows
+            while (rs.next()) {
+                for (int i = 1; i <= cols; i++) {
+                    if (i > 1) csvString.append(','); // If it's not the first item, throw a comma before
+                    csvString.append(csvEscape(rs.getString(i))); // Grab the column label, establish as header
+                }
+                csvString.append('\n'); // line break for new row
+            }
+
+            return csvString.toString();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null; // Return null for failure
+        }
+    }
+
+    // Adam: Helper method for us to create csv values
+    private static String csvEscape(String s) {
+        // Return empty string on null values
+        if (s == null) return "";
+
+        boolean needsQuotes = s.contains(",") || s.contains("\"") || s.contains("\n") || s.contains("\r");
+        // If the value contains a comma, quote wrap it
+        if (needsQuotes) {
+            return "\"" + s.replace("\"", "\"\"") + "\"";
+        }
+        // Otherwise, just return the value
+        return s;
+    }
+
     /*
      ** Controller functions - add your routes here. getItems is provided as an example
      */
@@ -324,5 +373,34 @@ public class DatabaseManager {
     public static int deleteDistributor(Integer distributorID) {
         String sql = "DELETE FROM distributors WHERE id = ?";
         return updateObject(sql, distributorID);
+    }
+
+    // exportTableCSV: Given a table in the DB, output all the records
+    public static String exportTableCSV(String tableName) {
+        // We cannot parameterize table names, so let's do a switch
+        String sql;
+        switch (tableName) {
+            case "items":
+                sql = "SELECT * FROM items";
+                break;
+            case "inventory":
+                sql = "SELECT * FROM inventory";
+                break;
+            case "distributors":
+                sql = "SELECT * FROM distributors";
+                break;
+            case "distributor_prices":
+                sql = "SELECT * FROM distributor_prices";
+                break;
+            default:
+                sql = null;
+        }
+
+        // If valid table, return the csv, otherwise empty string
+        if (sql == null) {
+            return "";
+        } else {
+            return generateCSV(sql);
+        }
     }
 }

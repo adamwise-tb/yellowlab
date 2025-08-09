@@ -210,7 +210,7 @@ public class DatabaseManager {
 
     // getAllInventory: Return items + inventory fields (JOIN)
     public static JSONArray getAllInventory() {
-        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+        String sql = "SELECT i.id as item_id, i.name, inv.stock, inv.capacity " +
                 "FROM items i JOIN inventory inv ON inv.item = i.id " +
                 "ORDER BY i.id";
         return queryResults(sql);
@@ -218,7 +218,7 @@ public class DatabaseManager {
 
     // getOverstockedInventory: Return items + inventory where stock > capacity
     public static JSONArray getOverstockedInventory() {
-        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+        String sql = "SELECT i.id as item_id, i.name, inv.stock, inv.capacity " +
                 "FROM items i JOIN inventory inv ON inv.item = i.id " +
                 "WHERE inv.stock > inv.capacity " +
                 "ORDER BY i.id";
@@ -227,7 +227,7 @@ public class DatabaseManager {
 
     // getLowStockInventory: Return items + inventory where stock < capacity*0.35
     public static JSONArray getLowStockInventory() {
-        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+        String sql = "SELECT i.id as item_id, i.name, inv.stock, inv.capacity " +
                 "FROM items i JOIN inventory inv ON inv.item = i.id " +
                 "WHERE inv.stock < (inv.capacity * 0.35) " +
                 "ORDER BY i.id";
@@ -236,7 +236,7 @@ public class DatabaseManager {
 
     // getInventory: Return items + inventory for given Item ID
     public static JSONArray getInventory(Integer id) {
-        String sql = "SELECT i.id, i.name, inv.stock, inv.capacity " +
+        String sql = "SELECT i.id as item_id, i.name, inv.stock, inv.capacity " +
                 "FROM items i JOIN inventory inv ON inv.item = i.id " +
                 "WHERE i.id = ?";
         return queryResults(sql, id);
@@ -250,7 +250,7 @@ public class DatabaseManager {
 
     // getDistributor: Return distributor for given ID
     public static JSONArray getDistributor(Integer id) {
-        String sql = "SELECT i.name, i.id as item_id, dp.cost " +
+        String sql = "SELECT i.name as item_name, i.id as item_id, dp.cost " +
                 "FROM distributors d " +
                 "JOIN distributor_prices dp ON d.id = dp.distributor " +
                 "JOIN items i ON i.id = dp.item " +
@@ -260,7 +260,7 @@ public class DatabaseManager {
 
     // getDistributorByItem: Return distributor for a given ITEM id
     public static JSONArray getDistributorsByItem(Integer id) {
-        String sql = "SELECT d.name, d.id as distributor_id, dp.cost " +
+        String sql = "SELECT d.name as distributor_name, d.id as distributor_id, dp.cost " +
                 "FROM distributor_prices dp " +
                 "JOIN items i ON dp.item = i.id " +
                 "JOIN distributors d ON d.id = dp.distributor " +

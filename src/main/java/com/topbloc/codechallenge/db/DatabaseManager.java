@@ -250,7 +250,7 @@ public class DatabaseManager {
 
     // getDistributor: Return distributor for given ID
     public static JSONArray getDistributor(Integer id) {
-        String sql = "SELECT i.name, i.id, dp.cost " +
+        String sql = "SELECT i.name, i.id as item_id, dp.cost " +
                 "FROM distributors d " +
                 "JOIN distributor_prices dp ON d.id = dp.distributor " +
                 "JOIN items i ON i.id = dp.item " +
@@ -260,7 +260,7 @@ public class DatabaseManager {
 
     // getDistributorByItem: Return distributor for a given ITEM id
     public static JSONArray getDistributorsByItem(Integer id) {
-        String sql = "SELECT d.name, d.id, dp.cost " +
+        String sql = "SELECT d.name, d.id as distributor_id, dp.cost " +
                 "FROM distributor_prices dp " +
                 "JOIN items i ON dp.item = i.id " +
                 "JOIN distributors d ON d.id = dp.distributor " +
@@ -292,9 +292,15 @@ public class DatabaseManager {
         return createObject(sql, distributor, item, cost);
     }
 
-    // updateItem: Update item name
-    public static int updateItem(Integer id, String name) {
+    // putItem: Update item name
+    public static int putItem(Integer id, String name) {
         String sql = "UPDATE items SET name = ? WHERE id = ?";
         return updateObject(sql, name, id);
+    }
+
+    // putDistributorPrice: Update distributor_prices cost value
+    public static int putDistributorPrice(Integer distributorID, Integer itemID, BigDecimal cost) {
+        String sql = "UPDATE distributor_prices SET cost = ? WHERE distributor = ? AND item = ?";
+        return updateObject(sql, cost.doubleValue(), distributorID, itemID);
     }
 }

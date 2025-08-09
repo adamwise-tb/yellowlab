@@ -175,13 +175,38 @@ public class Main {
                 String name = body.get("name").toString();
 
                 // Create the item (it returns ID)
-                int rowsUpdated = DatabaseManager.updateItem(itemID, name); // Insert & return new ID
+                int rowsUpdated = DatabaseManager.putItem(itemID, name); // Insert & return new ID
                 validateQueryExecution(rowsUpdated); // If an error happened in SQL, this'll be -1
-                validateRowsUpdated(rowsUpdated, itemID); // Validate item was actually updated, if not, return 404 (DNE)
+                validateRowsUpdated(rowsUpdated); // Validate item was actually updated, if not, return 404 (DNE)
 
                 // Return updated object
                 res.status(200); // 200 for updated, we're returning the new obj
                 return "{\"id\":" + itemID + ",\"name\":\"" + name + "\"}";
+            } catch (ParseException e) {
+                // If the user didn't input a string for name, or the body didn't have the name attr, return error
+                halt(400, "Invalid JSON format");
+                return null;
+            }
+        });
+        put ("/distributors/:distributorID/item/:itemID", (req, res) -> {
+            try {
+                var distributorID = validateInt(req.params(":distributorID")); // Validate int, or return 400
+                var itemID = validateInt(req.params(":itemID")); // Validate int, or return 400
+
+                // Parse the body of the request - we need the cost param (this is only for editing the cost)
+                JSONObject body = (JSONObject) new JSONParser().parse(req.body());
+                BigDecimal cost = BigDecimal
+                        .valueOf(((Number) body.get("cost")).doubleValue()) // Convert number to Double so we can use BigDecimal to round
+                        .setScale(2, RoundingMode.HALF_UP); // round to 2 decimal places
+
+                // Create the item (it returns ID)
+                int rowsUpdated = DatabaseManager.putDistributorPrice(distributorID, itemID, cost); // Insert & return new ID
+                validateQueryExecution(rowsUpdated); // If an error happened in SQL, this'll be -1
+                validateRowsUpdated(rowsUpdated); // Validate item was actually updated, if not, return 404 (DNE)
+
+                // Return updated object
+                res.status(204); // 204 b/c we're returning nothing (I don't wanna go have to do SQL to grab the distributor_price item name and distributor name) but we want to signal that the item was successfully updated
+                return "";
             } catch (ParseException e) {
                 // If the user didn't input a string for name, or the body didn't have the name attr, return error
                 halt(400, "Invalid JSON format");
@@ -218,9 +243,9 @@ public class Main {
     }
 
     // Adam: OSOT in validating obj was actually updated (PUT)
-    private static void validateRowsUpdated(Integer numberOfRowsUpdated, Integer id) {
+    private static void validateRowsUpdated(Integer numberOfRowsUpdated) {
         if (numberOfRowsUpdated == 0) {
-            halt(404, "Could not find object with ID " + id);
+            halt(404, "Could not find object.");
         }
     }
 }

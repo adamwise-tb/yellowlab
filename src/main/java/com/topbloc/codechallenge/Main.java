@@ -267,6 +267,14 @@ public class Main {
             res.status(204); // If we got to this point, it was successful
             return "";
         });
+        delete("/distributors/:distributorID", (req, res) -> {
+            int distributorID = validateInt(req.params(":distributorID")); // Validate int, or return 400
+            int rowsDeleted = DatabaseManager.deleteDistributor(distributorID); // Delete the distributor (and cascade to distributor_prices)
+            validateQueryExecution(rowsDeleted); // ensure rowsDeleted doesn't equal -1
+            validateRowsUpdated(rowsDeleted);
+            res.status(204); // If we got to this point, it was successful
+            return "";
+        });
     }
 
     // Adam: This helps maintain OSOT with ensuring param IDs are ACTUALLY IDs

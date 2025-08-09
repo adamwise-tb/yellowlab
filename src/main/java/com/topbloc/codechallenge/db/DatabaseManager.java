@@ -319,4 +319,10 @@ public class DatabaseManager {
         String sql = "DELETE FROM items WHERE id = ?";
         return updateObject(sql, itemID);
     }
+
+    // deleteDistributor: Given distirbutor ID, delete it, cascade to distributor_prices as well
+    public static int deleteDistributor(Integer distributorID) {
+        String sql = "DELETE FROM distributors WHERE id = ?";
+        return updateObject(sql, distributorID);
+    }
 }

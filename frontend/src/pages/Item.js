@@ -1,44 +1,39 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function Item() {
-  const { id } = useParams();              // /items/:id
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
+  const { id } = useParams();
+  const [rows,setRows] = useState([]);
+  const [loading,setLoading] = useState(true);
+  const [err,setErr]=useState("");
 
-  useEffect(() => {
-    (async () => {
+  const endpoint = `/distributors/item/${id}`;
+
+  useEffect(()=> {
+    (async ()=> {
       try {
-        const r = await fetch(`/distributors/item/${id}`);
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const data = await r.json();
-        setRows(Array.isArray(data) ? data : []);
-      } catch (e) {
-        setErr(e.message);
-      } finally {
-        setLoading(false);
-      }
+        const r = await fetch(endpoint);
+        if(!r.ok) throw new Error(`HTTP ${r.status}`);
+        setRows(await r.json());
+      } catch(e){ setErr(e.message); }
+      finally{ setLoading(false); }
     })();
-  }, [id]);
+  }, [endpoint]);
 
   if (loading) return <div className="alert alert-info">Loading…</div>;
   if (err) return <div className="alert alert-danger">Error: {err}</div>;
-  if (!rows.length) return <div className="alert alert-warning">No distributors for item #{id}</div>;
+  if (!rows.length) return <div className="alert alert-warning">No data.</div>;
 
-  const cols = Object.keys(rows[0]); // e.g., name, distributor_id, cost
-
+  const cols = Object.keys(rows[0]);
   return (
-    <div className="container py-3">
-      <h2 className="mb-3">Item #{id} — Distributors</h2>
-      <table className="table table-striped">
-        <thead><tr>{cols.map(c => <th key={c}>{c}</th>)}</tr></thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i}>{cols.map(c => <td key={c}>{String(row[c])}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="container py-4">
+      <h1 className="mb-4">Distributor Prices for Item #{id}</h1>
+      <div className="mb-3">
+        <table className="table table-striped">
+          <thead><tr>{cols.map(c=> <th key={c}>{c}</th>)}</tr></thead>
+          <tbody>{rows.map((r,i)=><tr key={i}>{cols.map(c=> <td key={c}>{String(r[c])}</td>)}</tr>)}</tbody>
+        </table>
+    </div>
     </div>
   );
 }

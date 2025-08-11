@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Leveraging bootstrap to make t
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 // Add for routing through links
+import Home from "./pages/Home";
 import Item from "./pages/Item";
 import Distributor from "./pages/Distributor";
 
@@ -26,56 +27,13 @@ export default function App() {
         }
     }
 
-    // Dynamically determine how many columns are needed dependent on the data returned
-    const cols = rows[0] ? Object.keys(rows[0]) : [] // if the first row exist, grab the keys as columns
-
     return (
       <Router>
-        <div className="container py-4">
-          <h1 className="mb-4">Adam's Backend Code Challenge</h1>
-          <div className="mb-3">
-            <button
-              className={`btn me-2 ${active === "items" ? "btn-primary" : "btn-secondary"}`}
-              onClick={() => apiRequest("items")}
-            >
-              Items
-            </button>
-            <button
-              className={`btn ${active === "distributors" ? "btn-primary" : "btn-secondary"}`}
-              onClick={() => apiRequest("distributors")}
-            >
-              Distributors
-            </button>
-          </div>
-          {loading && <div className="alert alert-info">Loading…</div>}
-          {!loading && rows.length > 0 && (
-            <table className="table table-striped">
-              <thead>
-                <tr>{cols.map(c => <th key={c}>{c}</th>)}</tr>
-              </thead>
-              <tbody>
-                {rows.map((row, i) => (
-                    <tr key={i}>
-                      {cols.map((c) => (
-                        <td key={c}>
-                          {c === "name" ? (
-                            <Link to={`/${active}/${row.id}`}>{row[c]}</Link>
-                          ) : (
-                            row[c]
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          )}
-
           <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/items/:id" element={<Item />} />
             <Route path="/distributors/:id" element={<Distributor />} />
           </Routes>
-        </div>
       </Router>
     )
 }

@@ -1,3 +1,10 @@
+# Instructions to Run
+1. Clone repository to local device
+2. Run the Main.java file (to boot API)
+3. Postman: GET localhost:4567/version (Assert API is functioning)
+3. Command Line: cd frontend (to get into the React app directory)
+4. Command Line: npm start (to boot React app, localhost:3000)
+
 # Adam's Developer Notes
 ## Java
 My strategy building this app was to maintain OSOT through private functions (error handling/codes, validating params, SQL query execution, preventing SQL injection) and leverage the...

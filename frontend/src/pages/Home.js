@@ -40,6 +40,8 @@ export default function Home() {
 
       {loading && <div className="alert alert-info">Loading…</div>}
 
+      {active === "distributors" && <Link to={`/distributors/create`} className='btn btn-success'>Create Distributor</Link>}
+
       {!loading && rows.length > 0 && (
         <table className="table table-striped">
           <thead>

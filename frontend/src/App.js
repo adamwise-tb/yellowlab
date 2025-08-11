@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Item from "./pages/Item";
 import Distributor from "./pages/Distributor";
 import EditItem from "./pages/EditItem";
+import CreateDistributor from "./pages/CreateDistributor";
 
 export default function App() {
     return (
@@ -14,8 +15,9 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/items/:id" element={<Item />} />
-            <Route path="/distributors/:id" element={<Distributor />} />
             <Route path="/items/:id/edit" element={<EditItem />} />
+            <Route path="/distributors/:id" element={<Distributor />} />
+            <Route path="/distributors/create" element={<CreateDistributor />} />
           </Routes>
       </Router>
     )

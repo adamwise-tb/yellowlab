@@ -22,7 +22,7 @@ export default function Distributor() {
 
   if (loading) return <div className="alert alert-info">Loading…</div>;
   if (err) return <div className="alert alert-danger">Error: {err}</div>;
-  if (!rows.length) return <div className="alert alert-warning">No data.</div>;
+  if (!rows.length) return <div className="alert alert-warning">No items sold by distributor.</div>;
 
   const cols = Object.keys(rows[0]);
   return (

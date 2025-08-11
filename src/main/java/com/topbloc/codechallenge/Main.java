@@ -53,12 +53,14 @@ public class Main {
         get("/distributors/:distributorID", (req, res) -> {
             var distributorID = validateInt(req.params(":distributorID")); // Validate int, or return 400
             var data = DatabaseManager.getDistributor(distributorID); // Grab the item...
-            return jsonOr404(data, res); // ...and return it or if DNE, 404
+            // return jsonOr404(data, res); // ...and return it or if DNE, 404
+            return !data.isEmpty() ? data : "[]"; // Realized this makes more sense once working with React app
         });
         get("/distributors/item/:itemID", (req, res) -> {
             var itemID = validateInt(req.params(":itemID")); // Validate int, or return 400
             var data = DatabaseManager.getDistributorsByItem(itemID); // Grab the item...
-            return jsonOr404(data, res); // ...and return it or if DNE, 404
+//            return jsonOr404(data, res); // ...and return it or if DNE, 404
+            return !data.isEmpty() ? data : "[]"; // Realized this makes more sense once working with React app
         });
 
         // Adam: POST routes

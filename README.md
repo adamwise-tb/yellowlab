@@ -1,9 +1,11 @@
 # Instructions to Run
 1. Clone repository to local device
-2. Run the Main.java file (to boot API)
-3. Postman: GET localhost:4567/version (Assert API is functioning)
-3. Command Line: cd frontend (to get into the React app directory)
-4. Command Line: npm start (to boot React app, localhost:3000)
+2. Ensure you have Java 11 downloaded on local device (to run Main.java)
+3. Run the Main.java file from code editor (to boot API)
+4. Postman: GET localhost:4567/version (Assert API is functioning)
+5. Command Line: cd frontend (to get into the React app directory)
+6. Command Line: npm install (to download all react app dependencies)
+7. Command Line: npm start (to boot React app, localhost:3000)
 
 # Adam's Developer Notes
 ## Java

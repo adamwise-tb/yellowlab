@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Item() {
   const { id } = useParams();
@@ -28,6 +29,7 @@ export default function Item() {
   return (
     <div className="container py-4">
       <h1 className="mb-4">Distributor Prices for Item #{id}</h1>
+      <Link to={`/items/${id}/edit`}>Edit Item Name</Link>
       <div className="mb-3">
         <table className="table table-striped">
           <thead><tr>{cols.map(c=> <th key={c}>{c}</th>)}</tr></thead>

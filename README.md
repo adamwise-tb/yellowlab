@@ -1,4 +1,5 @@
-# Adam's Notes
+# Adam's Developer Notes
+## Java
 My strategy building this app was to maintain OSOT through private functions (error handling/codes, validating params, SQL query execution, preventing SQL injection) and leverage the...
 
 - Main.java: A controller of sorts, hosting all ROUTES, categorized by method
@@ -9,8 +10,26 @@ Given time constraints, the next place I'd take an app like this would be...
 - Creating models for items, inventory, distributors, distributor_prices to host data manipulations (instead of all in DatabaseManager)
 - Pull out route validations into a separate file for a cleaner codebase
 
-Below are the routes configured for each of the requirements for this challenge, and a short description of what they do.
+## React
+My strategy here was to leverage Bootstrap and React Router to create a semi-intuitive frontend for interacting with the API.
 
+- Home: Click buttons to load both Items & Distributors
+- Items: Can click into an item to...
+  - View all distributors who sell it
+  - Edit item name
+  - Delete item
+- Distributors: Can click into a distributor to...
+  - View all items the distributor sells
+  - Create a new distributor (green button appears on Home page when listing distributors)
+
+Given time constraints, next place I'd take this part of the app would be...
+
+- Improve API endpoints for specific items/distributors to include the item itself (ex: when pulling a distributor, include the name, and THEN an array of all their item prices) to allow for better data display in react app (didn't wanna pass names through state, especially with users editing values)
+- Create buttons / pages for ALL endpoints (ex: a button that upon clicking, downloads the CSV for a given table)
+- Improve CSS design (I didn't do anything crazy here - but wanted to show I have an understanding of Bootstrap to make nice interfaces)
+- More OSOT with API calls, components, etc.
+
+# API Notes
 ## GET routes
 - GET /items: Displays all items (id, name)
 - GET /inventory: Displays inventory of all items (item_id, name, stock, capacity)
